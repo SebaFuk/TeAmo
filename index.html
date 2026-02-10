@@ -50,7 +50,7 @@
       backdrop-filter: blur(8px);
       min-height: 560px;
     }
-    @media (max-width: 900px){ .card{grid-template-columns:1fr} }
+    @media (max-width: 900px){ .card{grid-template-columns:1fr} .msg{max-height:220px} .btnRow button{flex:1 1 170px} }
 
     .left{
       padding:20px;
@@ -113,9 +113,20 @@
       font-size:17px;
       line-height:1.48;
       white-space:pre-wrap;
-      min-height:156px;
       position:relative;
-      overflow:hidden;
+
+      /* CLAVE: no estirar la carta */
+      max-height: 260px;
+      overflow:auto;
+      padding-right:10px;
+      scrollbar-gutter: stable;
+    }
+    .msg::-webkit-scrollbar{ width:10px; }
+    .msg::-webkit-scrollbar-thumb{
+      background: rgba(0,0,0,.15);
+      border-radius: 999px;
+      border: 3px solid transparent;
+      background-clip: content-box;
     }
     .cursor{
       display:inline-block;
@@ -169,11 +180,13 @@
     .overlay{
       position:fixed; inset:0;
       display:flex; align-items:center; justify-content:center;
-      background: rgba(255, 231, 240, .55);
+      background: rgba(255, 231, 240, .92);
       backdrop-filter: blur(10px);
       z-index: 9999;
       opacity:0;
       animation: overlayIn .45s ease forwards;
+    
+      transition: opacity .35s ease;
     }
     @keyframes overlayIn{ to{opacity:1} }
 
@@ -206,50 +219,6 @@
       filter: drop-shadow(0 18px 35px rgba(0,0,0,.18));
       transform: translateZ(0);
     }
-
-    /* Intro card (before opening) */
-    .introCard{
-      position: absolute;
-      left: 50%;
-      top: 68%;
-      transform: translate(-50%, -50%);
-      width: min(430px, 92vw);
-      background: rgba(255,255,255,.92);
-      border-radius: 22px;
-      padding: 22px 18px 18px;
-      box-shadow: 0 22px 60px rgba(0,0,0,.12);
-      border: 1px solid rgba(0,0,0,.06);
-      text-align:center;
-      z-index: 20;
-      user-select:none;
-      -webkit-user-select:none;
-      touch-action: manipulation;
-    }
-    .introTitle{
-      font-family: "Playfair Display", system-ui, serif;
-      font-weight: 800;
-      letter-spacing: .02em;
-      font-size: clamp(28px, 5.6vw, 44px);
-      line-height: 1.02;
-      color: #262626;
-      margin-bottom: 8px;
-    }
-    .introHint{
-      color: rgba(0,0,0,.55);
-      font-size: 16px;
-      margin-bottom: 14px;
-    }
-    .introHint .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: .95em;
-    }
-    /* Hide intro once opened */
-    .envelope.open .introCard{
-      opacity: 0;
-      transform: translate(-50%, -55%) scale(.98);
-      pointer-events:none;
-    }
-
 
     .envBack{
       position:absolute; inset:0;
@@ -300,13 +269,45 @@
       box-shadow: 0 14px 30px rgba(0,0,0,.08);
     }
 
-     .letterTop .q{
-      margin-top: 6px;
+    .letterTop .q{
       font-size: 22px;
       line-height:1.05;
       font-weight: 900;
     }
 
+    .intro{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:14px;
+      padding-top: 6px;
+    }
+    .introTitle{
+      font-size: 28px;
+      line-height: 1.05;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      color: rgba(0,0,0,.86);
+      text-align:center;
+      text-transform: uppercase;
+    
+      max-width: 92%;
+      word-break: keep-all;
+    }
+    .vbtn.open{
+      background: linear-gradient(180deg, #ff6b97, var(--accent));
+      color:#fff;
+      box-shadow: 0 12px 28px rgba(225,29,72,.25);
+      border: 0;
+    
+      margin-top: 10px;
+    }
+    /* Estados: antes de abrir solo se ve "TIENES UNA CARTA" + ABRIR */
+    .overlay:not(.open) .q,
+    .overlay:not(.open) #btnField,
+    .overlay:not(.open) #noMsg{ display:none; }
+    .overlay.open .intro{ display:none; }
+    
     .letterBtns{
       position:relative;
       height: 62px;
@@ -377,19 +378,16 @@
   <div id="valentineOverlay" class="overlay">
     <div class="envelopeWrap">
       <div class="envelope" id="envelope">
-      <!-- Intro card (shows "TIENES UNA CARTA" + ABRIR) -->
-      <div id="introCard" class="introCard" aria-hidden="false">
-        <div class="introTitle">TIENES UNA<br/>CARTA <span aria-hidden="true">💌</span></div>
-        <div class="introHint">Tocá <span class="kbd">"ABRIR"</span> o el sobre <span aria-hidden="true">💌</span></div>
-        <button id="btnAbrirCarta" class="pillBtn" type="button">ABRIR</button>
-      </div>
-
         <div class="envBack"></div>
         <div class="envFront"></div>
         <div class="envFlap"></div>
 
         <div class="letter" id="letter">
           <div class="letterTop">
+            <div class="intro">
+              <div class="introTitle">TIENES UNA CARTA 💌</div>
+              <button id="btnOpen" class="vbtn open">ABRIR</button>
+            </div>
             <div class="q">¿Querés ser mi San Valentín?</div>
           </div>
 
@@ -402,7 +400,7 @@
         </div>
       </div>
 
-      <div class="hint2">Tocá el sobre para abrir 💌</div>
+      <div class="hint2">Tocá "ABRIR" o el sobre 💌</div>
     </div>
   </div>
 
@@ -471,21 +469,41 @@ Te amo. ❤️`;
   $("titleLine").textContent = TITULO;
   $("subLine").textContent = SUB;
 
-  // typewriter
+  // typewriter (ARRANCA CUANDO TOCÁS "SÍ")
   const typedEl = $("typed");
   const cursorEl = $("cursor");
   let ti = 0;
-  (function typeWriter(){
-    typedEl.textContent = MENSAJE.slice(0, ti++);
-    if(ti <= MENSAJE.length) setTimeout(typeWriter, 16);
-    else cursorEl.style.opacity = "0.55";
-  })();
+  let typeTimer = null;
 
-  // contador
+  function startTypewriter(){
+    ti = 0;
+    typedEl.textContent = "";
+    cursorEl.style.opacity = "1";
+    const isMobile = window.matchMedia("(max-width: 900px)").matches;
+    const speed = isMobile ? 18 : 16; // ms por char
+    const step = () => {
+      typedEl.textContent = MENSAJE.slice(0, ti++);
+      // mantener scroll abajo mientras escribe
+      const box = typedEl.parentElement;
+      box.scrollTop = box.scrollHeight;
+
+      if(ti <= MENSAJE.length){
+        typeTimer = setTimeout(step, speed);
+      }else{
+        cursorEl.style.opacity = "0.55";
+        typeTimer = null;
+      }
+    };
+    step();
+  }
+
+  // contador (ARRANCA CUANDO TOCÁS "SÍ")
   const dd = $("dd"), hh = $("hh"), mm = $("mm"), ss = $("ss");
   const start = new Date(FECHA_INICIO).getTime();
   const pad = (n) => String(n).padStart(2,"0");
-  setInterval(() => {
+  let counterTimer = null;
+
+  function tickCounter(){
     let s = Math.floor((Date.now() - start)/1000);
     if(s < 0) s = 0;
     const days = Math.floor(s/86400); s%=86400;
@@ -496,7 +514,12 @@ Te amo. ❤️`;
     hh.textContent = pad(hrs);
     mm.textContent = pad(mins);
     ss.textContent = pad(secs);
-  }, 250);
+  }
+
+  function startCounter(){
+    tickCounter();
+    counterTimer = setInterval(tickCounter, 250);
+  }
 
   // canvas
   const cv = $("cv");
@@ -864,12 +887,24 @@ Te amo. ❤️`;
     }
   });
 
-  // start
-  fitCanvas();
-  requestAnimationFrame(loop);
-  setTimeout(()=> { spawnRain(24); }, 700);
+  // start (NO ARRANCA HASTA APRETAR "SÍ")
+  function startCanvas(){
+    // reset estado por si alguna vez lo reusás
+    grow = 0;
+    HEART_TARGETS = [];
+    hearts.length = 0;
+    rain.length = 0;
+    spark.length = 0;
+    targetIndex = 0;
+    heartStarted = false;
+
+    fitCanvas();
+    requestAnimationFrame(loop);
+    setTimeout(()=> { spawnRain(24); }, 700);
+  }
 
   window.addEventListener("resize", () => {
+    if(!started) return;
     fitCanvas();
     HEART_TARGETS = [];
     hearts.length = 0;
@@ -881,52 +916,52 @@ Te amo. ❤️`;
   /* ===== CARTA SAN VALENTÍN (overlay) ===== */
   const overlay = document.getElementById("valentineOverlay");
   const envelope = document.getElementById("envelope");
-
-    const btnAbrirCarta = document.getElementById("btnAbrirCarta");
-
-    // iOS/Android file viewers can be picky: use pointerdown + click + touchstart
-    const openFromIntro = (e) => {
-      if (e) { e.preventDefault(); e.stopPropagation(); }
-      envelope.click();
-    };
-    if (btnAbrirCarta){
-      btnAbrirCarta.addEventListener("pointerdown", openFromIntro, { passive:false });
-      btnAbrirCarta.addEventListener("touchstart", openFromIntro, { passive:false });
-      btnAbrirCarta.addEventListener("click", openFromIntro, { passive:false });
-    }
   const btnYes = document.getElementById("btnYes");
   const btnNo  = document.getElementById("btnNo");
+  const btnOpen = document.getElementById("btnOpen");
   const noMsg  = document.getElementById("noMsg");
   const btnField = document.getElementById("btnField");
 
   let opened = false;
 
-  // abrir sobre
-  envelope.addEventListener("click", () => {
+  function openEnvelope(){
     if(opened) return;
     opened = true;
     overlay.classList.add("open");
-    envelope.classList.add("open");
+  }
+
+  // abrir sobre (o botón ABRIR)
+  envelope.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openEnvelope();
+  });
+  btnOpen.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openEnvelope();
   });
 
-  // SI: cerrar overlay
+  // SI: cerrar overlay y ARRANCAR TODO
+  function startExperience(){
+    if(started) return;
+    started = true;
+
+    // arrancar animaciones
+    startCanvas();
+    startTypewriter();
+    startCounter();
+
+    // asegurar scroll al final durante escritura
+    const msgBox = document.querySelector(".msg");
+    msgBox.scrollTop = msgBox.scrollHeight;
+  }
+
   btnYes.addEventListener("click", (e) => {
     e.stopPropagation();
+    startExperience();
     overlay.classList.add("hide");
+    setTimeout(()=>{ overlay.style.display="none"; }, 380);
     spawnRain(90);
   });
-
-  const yesHandler = (ev) => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    // abrir carta (pantalla principal)
-    overlay.classList.add("hide");
-    setTimeout(() => { overlay.style.display = "none"; }, 450);
-  };
-  // extra soporte mobile
-  btnYes.addEventListener("touchstart", yesHandler, {passive:false});
-  btnYes.addEventListener("pointerdown", yesHandler);
-
 
   // ===== MODO TROLL MAX (SIN CAMBIAR TAMAÑO) =====
   let trollLock = false;
@@ -982,8 +1017,6 @@ Te amo. ❤️`;
     e.stopPropagation();
     escapeNo();
   }, {passive:false});
-  btnNo.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); escapeNo(); });
-
 
   // CELU: si el dedo se acerca al NO dentro del campo, huye
   btnField.addEventListener("touchmove", (e) => {
