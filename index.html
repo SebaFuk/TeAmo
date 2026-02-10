@@ -51,30 +51,19 @@
       backdrop-filter: blur(8px);
       min-height: 560px;
     }
-    @media (max-width: 900px){ .card{grid-template-columns:1fr .msg{max-height:260px} } .msg{
-      margin-top:10px;
-      padding:14px 14px;
-      background:rgba(255,255,255,.72);
-      border:1px solid var(--stroke);
-      border-radius:16px;
-      font-size:17px;
-      line-height:1.48;
-      white-space:pre-wrap;
-      position:relative;
+    @media (max-width: 900px){
+  body{ padding:12px; overflow:auto; }
+  .wrap{ width:100%; }
+  .card{ grid-template-columns: 1fr; min-height: auto; }
+  .left{ min-height:auto; padding:16px; }
+  .stage{ min-height:220px; height:260px; }
+  .right{ padding:16px; }
+  .msg{ max-height: 40vh; overflow:auto; }
+  .counter{ grid-template-columns: repeat(2, 1fr); }
+  .btnRow{ gap:8px; }
+  .btnRow button, .miniLink{ flex:1 1 45%; }
+}
 
-      /* MÁS ESPACIO: casi toda la altura disponible */
-      max-height: 360px;
-      overflow:auto;
-      padding-right:10px;
-      scrollbar-gutter: stable;
-    }
-    .msg::-webkit-scrollbar{ width:10px; }
-    .msg::-webkit-scrollbar-thumb{
-      background: rgba(0,0,0,.15);
-      border-radius: 999px;
-      border: 3px solid transparent;
-      background-clip: content-box;
-    } .btnRow button{flex:1 1 170px} }
 
     .left{
       padding:20px;
