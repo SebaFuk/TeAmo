@@ -300,7 +300,8 @@
       box-shadow: 0 14px 30px rgba(0,0,0,.08);
     }
 
-    .letterTop .q{
+     .letterTop .q{
+      margin-top: 6px;
       font-size: 22px;
       line-height:1.05;
       font-weight: 900;
@@ -905,6 +906,7 @@ Te amo. ❤️`;
     if(opened) return;
     opened = true;
     overlay.classList.add("open");
+    envelope.classList.add("open");
   });
 
   // SI: cerrar overlay
@@ -913,6 +915,18 @@ Te amo. ❤️`;
     overlay.classList.add("hide");
     spawnRain(90);
   });
+
+  const yesHandler = (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    // abrir carta (pantalla principal)
+    overlay.classList.add("hide");
+    setTimeout(() => { overlay.style.display = "none"; }, 450);
+  };
+  // extra soporte mobile
+  btnYes.addEventListener("touchstart", yesHandler, {passive:false});
+  btnYes.addEventListener("pointerdown", yesHandler);
+
 
   // ===== MODO TROLL MAX (SIN CAMBIAR TAMAÑO) =====
   let trollLock = false;
@@ -968,6 +982,8 @@ Te amo. ❤️`;
     e.stopPropagation();
     escapeNo();
   }, {passive:false});
+  btnNo.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); escapeNo(); });
+
 
   // CELU: si el dedo se acerca al NO dentro del campo, huye
   btnField.addEventListener("touchmove", (e) => {
