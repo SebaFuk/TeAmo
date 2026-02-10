@@ -302,6 +302,17 @@
     
       margin-top: 10px;
     }
+
+    /* Fix mobile/overlay: don't overlap title */
+    .intro .vbtn.open{
+      position: relative !important;
+      left: auto !important;
+      top: auto !important;
+      transform: none !important;
+      margin-top: 14px;
+      display: inline-flex;
+    }
+
     /* Estados: antes de abrir solo se ve "TIENES UNA CARTA" + ABRIR */
     .overlay:not(.open) .q,
     .overlay:not(.open) #btnField,
@@ -359,6 +370,7 @@
 
     .overlay.hide{
       animation: overlayOut .55s ease forwards;
+      pointer-events: none;
     }
     @keyframes overlayOut{ to{ opacity:0; visibility:hidden; } }
 
@@ -941,7 +953,9 @@ Te amo. ❤️`;
   });
 
   // SI: cerrar overlay y ARRANCAR TODO
-  function startExperience(){
+  let started = false;
+
+    function startExperience(){
     if(started) return;
     started = true;
 
