@@ -89,12 +89,15 @@
       }
 
       .left {
+        min-height: calc(100vh - 120px);
         padding: 15px;
+        display: flex;
+        flex-direction: column;
       }
 
       .stage {
+        flex: 1;
         min-height: 0;
-        aspect-ratio: 1 / 1;
       }
 
 
@@ -957,11 +960,18 @@ Te amo. ❤️`;
       let TREE_TRUNK_TOP_Y = 0;
 
       function drawTree() {
-        const baseX = W * 0.56, baseY = H * 0.95;
+        const isPortrait = H > W;
+        const baseX = W * 0.50, baseY = H * (isPortrait ? 0.98 : 0.95);
         TREE_BASE_X = baseX;
 
-        const trunkH = H * 0.16 * grow;
-        const trunkW = W * 0.060 * (0.75 + 0.25 * grow);
+        // Si es vertical, hacemos el tronco más alto para subir el corazón
+        const tH = isPortrait ? (H * 0.20) : (H * 0.16);
+        const trunkH = tH * grow;
+
+        // Ancho proporcional
+        const tW = isPortrait ? (W * 0.08) : (Math.min(W, H) * 0.06);
+        const trunkW = tW * (0.75 + 0.25 * grow);
+
         TREE_TRUNK_TOP_Y = baseY - trunkH;
 
         ctx.save();
@@ -991,14 +1001,20 @@ Te amo. ❤️`;
 
       function drawCanvasTitle() {
         ctx.save();
-        ctx.textAlign = "center";
+        const isPortrait = H > W;
+        const fontSizeTitle = isPortrait ? (W * 0.065) : (Math.min(W, H) * 0.040);
+        const fontSizeSub = isPortrait ? (W * 0.045) : (Math.min(W, H) * 0.028);
+
+        const titleY = isPortrait ? (H * 0.08) : (H * 0.05);
+        const subY = isPortrait ? (H * 0.12) : (H * 0.10);
+
         ctx.fillStyle = "rgba(225,29,72,.88)";
-        ctx.font = `${Math.floor(Math.min(W, H) * 0.040)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
-        ctx.fillText("San Valentín", W * 0.52, H * 0.05);
+        ctx.font = `${Math.floor(fontSizeTitle)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+        ctx.fillText("San Valentín", W * 0.50, titleY);
 
         ctx.fillStyle = "rgba(31,31,31,.55)";
-        ctx.font = `${Math.floor(Math.min(W, H) * 0.028)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
-        ctx.fillText(`Luci & Seba`, W * 0.52, H * 0.10);
+        ctx.font = `${Math.floor(fontSizeSub)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+        ctx.fillText(`Luci & Seba`, W * 0.50, subY);
         ctx.restore();
       }
 
@@ -1007,8 +1023,8 @@ Te amo. ❤️`;
         ctx.strokeStyle = "rgba(0,0,0,.15)";
         ctx.lineWidth = Math.max(1 * dpr, Math.floor(Math.min(W, H) * 0.004));
         ctx.beginPath();
-        ctx.moveTo(W * 0.08, H * 0.95);
-        ctx.lineTo(W * 0.92, H * 0.95);
+        ctx.moveTo(W * 0.08, TREE_TRUNK_TOP_Y + (isPortrait ? (H * 0.20) : (H * 0.16)));
+        ctx.lineTo(W * 0.92, TREE_TRUNK_TOP_Y + (isPortrait ? (H * 0.20) : (H * 0.16)));
         ctx.stroke();
         ctx.restore();
       }
@@ -1025,12 +1041,18 @@ Te amo. ❤️`;
       }
 
       function buildHeartTargets() {
-        const baseX = TREE_BASE_X || (W * 0.56);
-        const trunkTopNow = TREE_TRUNK_TOP_Y || (H * 0.95 - H * 0.16);
+        const isPortrait = H > W;
+        const baseX = TREE_BASE_X || (W * 0.50);
+        const trunkTopNow = TREE_TRUNK_TOP_Y || (H * 0.95);
 
-        const scale = Math.min(W, H) * 0.023; // tamaño del corazón más grande
+        // ESCALA ADAPTATIVA
+        // Si es vertical (celular), usamos el ancho como referencia y escalamos MÁS GRANDE
+        const baseScale = isPortrait ? (W * 0.032) : (Math.min(W, H) * 0.016);
+        const scale = baseScale;
+
         const cx = baseX;
-        const cy = trunkTopNow - (scale * 15); // ajustar altura basado en escala
+        // Ajustar posición vertical dependiendo del modo
+        const cy = trunkTopNow - (isPortrait ? (scale * 12) : (scale * 15));
 
         HEART_CENTER = { x: cx, y: cy };
 
