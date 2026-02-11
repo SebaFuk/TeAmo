@@ -89,14 +89,16 @@
       }
 
       .left {
-        min-height: 80vh;
+        min-height: calc(100vh - 140px);
+        max-height: calc(100vh - 140px);
         padding: 15px;
         display: flex;
         flex-direction: column;
       }
 
       .stage {
-        min-height: 75vh;
+        min-height: 0;
+        max-height: none;
         flex: 1;
       }
 
