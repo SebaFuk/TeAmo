@@ -89,15 +89,12 @@
       }
 
       .left {
-        min-height: calc(100vh - 120px);
         padding: 15px;
-        display: flex;
-        flex-direction: column;
       }
 
       .stage {
-        flex: 1;
         min-height: 0;
+        aspect-ratio: 1 / 1;
       }
 
 
@@ -775,8 +772,6 @@
     (() => {
       "use strict";
 
-      try {
-
       const NOMBRE = "Luci";
       const FECHA_INICIO = "2025-01-04T00:00:00";
 
@@ -962,17 +957,11 @@ Te amo. ❤️`;
       let TREE_TRUNK_TOP_Y = 0;
 
       function drawTree() {
-        // Factor de escala maestro: determina el tamaño de todo basado en la dimensión más chica
-        const geometryScale = Math.min(W, H);
-
-        const baseX = W * 0.50;
-        const baseY = H * 0.90; // Suelo más seguro al 90%
+        const baseX = W * 0.56, baseY = H * 1.00;
         TREE_BASE_X = baseX;
 
-        // El tronco se escala proporcional al canvas
-        const trunkH = (geometryScale * 0.25) * grow;
-        const trunkW = (geometryScale * 0.07) * (0.75 + 0.25 * grow);
-
+        const trunkH = H * 0.28 * grow;
+        const trunkW = W * 0.038 * (0.75 + 0.25 * grow);
         TREE_TRUNK_TOP_Y = baseY - trunkH;
 
         ctx.save();
@@ -983,18 +972,18 @@ Te amo. ❤️`;
         const by = baseY - trunkH * 0.78;
 
         ctx.strokeStyle = "rgba(120,72,38,.95)";
-        ctx.lineWidth = Math.max(2 * dpr, (geometryScale * 0.015) * grow);
+        ctx.lineWidth = Math.max(2 * dpr, 7 * dpr * grow);
         ctx.lineCap = "round";
 
-        const arm = (geometryScale * 0.15) * grow;
+        const arm = W * 0.15 * grow;
         ctx.beginPath();
         ctx.moveTo(bx, by);
-        ctx.quadraticCurveTo(bx - arm * 0.55, by - (geometryScale * 0.05) * grow, bx - arm, by - (geometryScale * 0.08) * grow);
+        ctx.quadraticCurveTo(bx - arm * 0.55, by - H * 0.06 * grow, bx - arm, by - H * 0.08 * grow);
         ctx.stroke();
 
         ctx.beginPath();
         ctx.moveTo(bx, by);
-        ctx.quadraticCurveTo(bx + arm * 0.55, by - (geometryScale * 0.05) * grow, bx + arm, by - (geometryScale * 0.08) * grow);
+        ctx.quadraticCurveTo(bx + arm * 0.55, by - H * 0.06 * grow, bx + arm, by - H * 0.08 * grow);
         ctx.stroke();
 
         ctx.restore();
@@ -1002,23 +991,14 @@ Te amo. ❤️`;
 
       function drawCanvasTitle() {
         ctx.save();
-        const geometryScale = Math.min(W, H);
-
-        // Texto más grande y bien posicionado arriba
-        const fontSizeTitle = geometryScale * 0.065;
-        const fontSizeSub = geometryScale * 0.045;
-
         ctx.textAlign = "center";
-
-        // Título principal
         ctx.fillStyle = "rgba(225,29,72,.88)";
-        ctx.font = `${Math.floor(fontSizeTitle)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
-        ctx.fillText("San Valentín", W * 0.50, H * 0.08);
+        ctx.font = `${Math.floor(Math.min(W, H) * 0.040)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+        ctx.fillText("San Valentín", W * 0.52, H * 0.11);
 
-        // Subtítulo
         ctx.fillStyle = "rgba(31,31,31,.55)";
-        ctx.font = `${Math.floor(fontSizeSub)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
-        ctx.fillText(`Luci & Seba`, W * 0.50, H * 0.13);
+        ctx.font = `${Math.floor(Math.min(W, H) * 0.028)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+        ctx.fillText(`Luci & Seba`, W * 0.52, H * 0.16);
         ctx.restore();
       }
 
@@ -1027,9 +1007,8 @@ Te amo. ❤️`;
         ctx.strokeStyle = "rgba(0,0,0,.15)";
         ctx.lineWidth = Math.max(1 * dpr, Math.floor(Math.min(W, H) * 0.004));
         ctx.beginPath();
-        // Suelo al 90%
-        ctx.moveTo(W * 0.05, H * 0.90);
-        ctx.lineTo(W * 0.95, H * 0.90);
+        ctx.moveTo(W * 0.08, H * 1.00);
+        ctx.lineTo(W * 0.92, H * 1.00);
         ctx.stroke();
         ctx.restore();
       }
@@ -1046,21 +1025,18 @@ Te amo. ❤️`;
       }
 
       function buildHeartTargets() {
-        const baseX = TREE_BASE_X || (W * 0.50);
-        const trunkTopNow = TREE_TRUNK_TOP_Y || (H * 0.65); // Fallback seguro
-
-        const geometryScale = Math.min(W, H);
-        // Escala del corazón aumentada y consistente
-        const scale = geometryScale * 0.022;
+        const baseX = TREE_BASE_X || (W * 0.56);
+        const trunkTopNow = TREE_TRUNK_TOP_Y || (H * 0.80 - H * 0.28);
 
         const cx = baseX;
-        // El centro del corazón se sitúa relativo a la copa del árbol
-        const cy = trunkTopNow - (scale * 13);
+        const cy = trunkTopNow - (H * 0.18); // subir/bajar corazón
+
+        const scale = Math.min(W, H) * 0.012; // tamaño del corazón
 
         HEART_CENTER = { x: cx, y: cy };
 
         const originX = baseX;
-        const originY = trunkTopNow + (scale * 2); // Un poco abajo del tope del tronco
+        const originY = trunkTopNow + (H * 0.03);
 
         const outline = [];
         const N = 360;
@@ -1330,66 +1306,56 @@ Te amo. ❤️`;
       });
 
       /* ===== CARTA SAN VALENTÍN (overlay) ===== */
-// (Defensivo: si algo falla en otra parte del JS, esto igual queda bien enganchado)
-const overlay = document.getElementById("valentineOverlay");
-const envelope = document.getElementById("envelope");
-const btnYes = document.getElementById("btnYes");
-const btnNo = document.getElementById("btnNo");
-const btnOpen = document.getElementById("btnOpen");
-const noMsg = document.getElementById("noMsg");
-const btnField = document.getElementById("btnField");
+      const overlay = document.getElementById("valentineOverlay");
+      const envelope = document.getElementById("envelope");
+      const btnYes = document.getElementById("btnYes");
+      const btnNo = document.getElementById("btnNo");
+      const btnOpen = document.getElementById("btnOpen");
+      const noMsg = document.getElementById("noMsg");
+      const btnField = document.getElementById("btnField");
 
-let opened = false;
+      let opened = false;
 
-function openEnvelope() {
-  if (!overlay) return;
-  if (opened) return;
-  opened = true;
-  overlay.classList.add("open");
-}
+      function openEnvelope() {
+        if (opened) return;
+        opened = true;
+        overlay.classList.add("open");
+      }
 
-// IMPORTANTE en mobile: usar pointer/touch y click
-function bindTap(el, fn) {
-  if (!el) return;
-  // pointerup cubre iOS/Android moderno
-  el.addEventListener("pointerup", (e) => { e.preventDefault(); e.stopPropagation(); fn(); }, { passive: false });
-  // fallback click
-  el.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); fn(); });
-}
+      // abrir sobre (o botón ABRIR)
+      envelope.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openEnvelope();
+      });
+      btnOpen.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openEnvelope();
+      });
 
-// abrir sobre (o botón ABRIR)
-bindTap(envelope, openEnvelope);
-bindTap(btnOpen, openEnvelope);
+      // SI: cerrar overlay y ARRANCAR TODO
+      function startExperience() {
+        if (started) return;
+        started = true;
 
-// SI: cerrar overlay y ARRANCAR TODO
-function startExperience() {
-  if (started) return;
-  started = true;
+        // arrancar animaciones
+        startCanvas();
+        startTypewriter();
+        startCounter();
 
-  // arrancar animaciones
-  startCanvas();
-  startTypewriter();
-  startCounter();
+        // asegurar scroll al final durante escritura
+        const msgBox = document.querySelector(".msg");
+        msgBox.scrollTop = msgBox.scrollHeight;
+      }
 
-  // asegurar scroll al final durante escritura
-  const msgBox = document.querySelector(".msg");
-  if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
-}
+      btnYes.addEventListener("click", (e) => {
+        e.stopPropagation();
+        startExperience();
+        overlay.classList.add("hide");
+        setTimeout(() => { overlay.style.display = "none"; overlay.remove(); }, 420);
+        spawnRain(90);
+      });
 
-if (btnYes) {
-  btnYes.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    startExperience();
-    if (overlay) {
-      overlay.classList.add("hide");
-      setTimeout(() => { overlay.style.display = "none"; overlay.remove(); }, 420);
-    }
-    spawnRain(90);
-  });
-}
-
-// ===== MODO TROLL MAX (SIN CAMBIAR TAMAÑO) =====
+      // ===== MODO TROLL MAX (SIN CAMBIAR TAMAÑO) =====
       let trollLock = false;
 
       function escapeNo() {
@@ -1474,10 +1440,8 @@ if (btnYes) {
           escapeNo();
         }
       });
-      } catch (e) {
-        console.error(e);
-        // si algo falla, que al menos puedas abrir la carta
-      }
+
+
     })();
   </script>
 </body>
