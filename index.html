@@ -911,24 +911,48 @@ Te amo. ❤️`;
       heartPic.onload = () => heartPicReady = true;
 
       function drawHeartPhoto() {
-        // mismo tamaño/posición que el contorno
-        const baseX = TREE_BASE_X || (W * 0.56);
-        const trunkTopNow = TREE_TRUNK_TOP_Y || (H * 0.80 - H * 0.28);
+  // Misma posición/escala que el contorno del corazón (para que encaje perfecto)
+  const baseX = TREE_BASE_X || (W * 0.50);
+  const trunkTopNow = TREE_TRUNK_TOP_Y || (H * 0.60);
 
-        const cx = baseX;
-        const cy = trunkTopNow - (H * 0.18);
-        const scale = Math.min(W, H) * 0.012 * 1.15;
+  const scale = (W * 0.020);
+  const cx = baseX;
+  const cy = trunkTopNow - (scale * 9);
 
-        // path de corazón
-        ctx.save();
-        ctx.beginPath();
-        for (let i = 0; i <= 220; i++) {
-          const t = (i / 220) * Math.PI * 2;
-          const p = heartPoint(t);
-          const x = cx + p.x * scale;
-          const y = cy - p.y * scale;
-          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-        }
+  ctx.save();
+
+  // path de corazón (igual que buildHeartTargets)
+  ctx.beginPath();
+  for (let i = 0; i <= 220; i++) {
+    const t = (i / 220) * Math.PI * 2;
+    const p = heartPoint(t);
+    const x = cx + p.x * scale * 1.18;
+    const y = cy - p.y * scale * 1.18;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.clip();
+
+  // bbox aprox del corazón
+  const boxW = 34 * scale * 1.18;
+  const boxH = 30 * scale * 1.18;
+
+  const iw = heartPic.naturalWidth || 1;
+  const ih = heartPic.naturalHeight || 1;
+  const r = Math.max(boxW / iw, boxH / ih);
+  const dw = iw * r;
+  const dh = ih * r;
+
+  ctx.globalAlpha = 0.98;
+  ctx.drawImage(heartPic, cx - dw / 2, cy - dh / 2, dw, dh);
+
+  // leve velo para que combine con el estilo
+  ctx.globalAlpha = 0.10;
+  ctx.fillStyle = "rgba(255,255,255,1)";
+  ctx.fillRect(cx - boxW / 2, cy - boxH / 2, boxW, boxH);
+
+  ctx.restore();
+}
         ctx.closePath();
         ctx.clip();
 
@@ -960,43 +984,44 @@ Te amo. ❤️`;
       let TREE_TRUNK_TOP_Y = 0;
 
       function drawTree() {
-        // Factor de escala maestro: determina el tamaño de todo basado en la dimensión más chica
-        const geometryScale = Math.min(W, H);
+  // Escala pensada para móvil vertical: usamos altura para que NO quede chiquito arriba.
+  const baseX = W * 0.50;
+  const baseY = H * 0.90; // suelo
 
-        const baseX = W * 0.50;
-        const baseY = H * 0.90; // Suelo más seguro al 90%
-        TREE_BASE_X = baseX;
+  TREE_BASE_X = baseX;
 
-        // El tronco se escala proporcional al canvas
-        const trunkH = (geometryScale * 0.25) * grow;
-        const trunkW = (geometryScale * 0.07) * (0.75 + 0.25 * grow);
+  // Tronco: proporcional a la ALTURA (en portrait el ancho es chico)
+  const trunkH = (H * 0.38) * grow;                 // antes: min(W,H)*0.25
+  const trunkW = Math.max(10 * dpr, (W * 0.08) * (0.75 + 0.25 * grow));
 
-        TREE_TRUNK_TOP_Y = baseY - trunkH;
+  TREE_TRUNK_TOP_Y = baseY - trunkH;
 
-        ctx.save();
-        ctx.fillStyle = "rgba(120,72,38,.95)";
-        ctx.fillRect(baseX - trunkW / 2, baseY - trunkH, trunkW, trunkH);
+  ctx.save();
+  ctx.fillStyle = "rgba(120,72,38,.95)";
+  ctx.fillRect(baseX - trunkW / 2, baseY - trunkH, trunkW, trunkH);
 
-        const bx = baseX;
-        const by = baseY - trunkH * 0.78;
+  const bx = baseX;
+  const by = baseY - trunkH * 0.78;
 
-        ctx.strokeStyle = "rgba(120,72,38,.95)";
-        ctx.lineWidth = Math.max(2 * dpr, (geometryScale * 0.015) * grow);
-        ctx.lineCap = "round";
+  ctx.strokeStyle = "rgba(120,72,38,.95)";
+  ctx.lineWidth = Math.max(2 * dpr, (W * 0.013) * grow);
+  ctx.lineCap = "round";
 
-        const arm = (geometryScale * 0.15) * grow;
-        ctx.beginPath();
-        ctx.moveTo(bx, by);
-        ctx.quadraticCurveTo(bx - arm * 0.55, by - (geometryScale * 0.05) * grow, bx - arm, by - (geometryScale * 0.08) * grow);
-        ctx.stroke();
+  // Brazos: proporcional al ANCHO
+  const arm = (W * 0.24) * grow;
 
-        ctx.beginPath();
-        ctx.moveTo(bx, by);
-        ctx.quadraticCurveTo(bx + arm * 0.55, by - (geometryScale * 0.05) * grow, bx + arm, by - (geometryScale * 0.08) * grow);
-        ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(bx, by);
+  ctx.quadraticCurveTo(bx - arm * 0.55, by - (H * 0.06) * grow, bx - arm, by - (H * 0.09) * grow);
+  ctx.stroke();
 
-        ctx.restore();
-      }
+  ctx.beginPath();
+  ctx.moveTo(bx, by);
+  ctx.quadraticCurveTo(bx + arm * 0.55, by - (H * 0.06) * grow, bx + arm, by - (H * 0.09) * grow);
+  ctx.stroke();
+
+  ctx.restore();
+}
 
       function drawCanvasTitle() {
         ctx.save();
@@ -1044,31 +1069,42 @@ Te amo. ❤️`;
       }
 
       function buildHeartTargets() {
-        const baseX = TREE_BASE_X || (W * 0.50);
-        const trunkTopNow = TREE_TRUNK_TOP_Y || (H * 0.65); // Fallback seguro
+  const baseX = TREE_BASE_X || (W * 0.50);
+  const trunkTopNow = TREE_TRUNK_TOP_Y || (H * 0.60);
 
-        const geometryScale = Math.min(W, H);
-        // Escala del corazón aumentada y consistente
-        const scale = geometryScale * 0.022;
+  // Corazón: escala basada en el ANCHO (se ve mejor en portrait)
+  const scale = (W * 0.020); // ajusta tamaño global del corazón
 
-        const cx = baseX;
-        // El centro del corazón se sitúa relativo a la copa del árbol
-        const cy = trunkTopNow - (scale * 13);
+  const cx = baseX;
+  // Lo bajamos para que quede centrado y “llene” el canvas (antes quedaba muy arriba)
+  const cy = trunkTopNow - (scale * 9);
 
-        HEART_CENTER = { x: cx, y: cy };
+  HEART_CENTER = { x: cx, y: cy };
 
-        const originX = baseX;
-        const originY = trunkTopNow + (scale * 2); // Un poco abajo del tope del tronco
+  const originX = baseX;
+  const originY = trunkTopNow + (scale * 2);
 
-        const outline = [];
-        const N = 360;
-        for (let i = 0; i < N; i++) {
-          const t = (i / N) * Math.PI * 2;
-          const p = heartPoint(t);
-          outline.push({
-            x: cx + p.x * scale * 1.15,
-            y: cy - p.y * scale * 1.15
-          });
+  const outline = [];
+  const N = 360;
+  for (let i = 0; i < N; i++) {
+    const t = (i / N) * Math.PI * 2;
+    const p = heartPoint(t);
+    outline.push({
+      x: cx + p.x * scale * 1.18,
+      y: cy - p.y * scale * 1.18
+    });
+  }
+
+  // arrancar desde el punto más cercano al tronco
+  let best = 0, bestD = Infinity;
+  for (let i = 0; i < outline.length; i++) {
+    const d = Math.hypot(outline[i].x - originX, outline[i].y - originY);
+    if (d < bestD) { bestD = d; best = i; }
+  }
+  const outlineRot = rotateArray(outline, best);
+
+  HEART_TARGETS = outlineRot.slice(0, MAX_CANVAS_HEARTS);
+});
         }
 
         // arrancar desde el punto más cercano al tronco
