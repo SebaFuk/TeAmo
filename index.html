@@ -77,6 +77,11 @@
     }
 
     @media (max-width: 900px) {
+      body {
+        align-items: flex-start;
+        padding-top: 20px;
+      }
+
       .card {
         grid-template-columns: 1fr;
         gap: 20px;
@@ -84,12 +89,11 @@
       }
 
       .left {
-        min-height: 450px;
-        max-height: 500px;
+        min-height: 320px;
       }
 
       .stage {
-        min-height: 420px;
+        min-height: 300px;
       }
 
       .msg {
