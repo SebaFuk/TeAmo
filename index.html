@@ -960,8 +960,8 @@ Te amo. ❤️`;
         const baseX = W * 0.56, baseY = H * 0.95;
         TREE_BASE_X = baseX;
 
-        const trunkH = H * 0.28 * grow;
-        const trunkW = W * 0.042 * (0.75 + 0.25 * grow);
+        const trunkH = H * 0.16 * grow;
+        const trunkW = W * 0.060 * (0.75 + 0.25 * grow);
         TREE_TRUNK_TOP_Y = baseY - trunkH;
 
         ctx.save();
@@ -994,11 +994,11 @@ Te amo. ❤️`;
         ctx.textAlign = "center";
         ctx.fillStyle = "rgba(225,29,72,.88)";
         ctx.font = `${Math.floor(Math.min(W, H) * 0.040)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
-        ctx.fillText("San Valentín", W * 0.52, H * 0.08);
+        ctx.fillText("San Valentín", W * 0.52, H * 0.05);
 
         ctx.fillStyle = "rgba(31,31,31,.55)";
         ctx.font = `${Math.floor(Math.min(W, H) * 0.028)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
-        ctx.fillText(`Luci & Seba`, W * 0.52, H * 0.13);
+        ctx.fillText(`Luci & Seba`, W * 0.52, H * 0.10);
         ctx.restore();
       }
 
@@ -1026,12 +1026,11 @@ Te amo. ❤️`;
 
       function buildHeartTargets() {
         const baseX = TREE_BASE_X || (W * 0.56);
-        const trunkTopNow = TREE_TRUNK_TOP_Y || (H * 0.95 - H * 0.28);
+        const trunkTopNow = TREE_TRUNK_TOP_Y || (H * 0.95 - H * 0.16);
 
+        const scale = Math.min(W, H) * 0.023; // tamaño del corazón más grande
         const cx = baseX;
-        const cy = trunkTopNow - (H * 0.18); // subir/bajar corazón
-
-        const scale = Math.min(W, H) * 0.016; // tamaño del corazón
+        const cy = trunkTopNow - (scale * 15); // ajustar altura basado en escala
 
         HEART_CENTER = { x: cx, y: cy };
 
