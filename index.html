@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
   <title>Para Luci ❤️</title>
 
   <style>
@@ -39,6 +39,8 @@
       overflow: auto;
       font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
       min-height: 100vh;
+      overscroll-behavior-y: contain;
+      -webkit-overflow-scrolling: touch;
     }
 
     .wrap {
@@ -78,10 +80,16 @@
       .card {
         grid-template-columns: 1fr;
         gap: 20px;
+        align-items: start;
       }
 
       .left {
-        min-height: 400px;
+        min-height: 450px;
+        max-height: 500px;
+      }
+
+      .stage {
+        min-height: 420px;
       }
 
       .msg {
