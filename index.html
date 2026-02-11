@@ -960,17 +960,16 @@ Te amo. ❤️`;
       let TREE_TRUNK_TOP_Y = 0;
 
       function drawTree() {
-        const isPortrait = H > W;
-        const baseX = W * 0.50, baseY = H * (isPortrait ? 0.98 : 0.95);
+        // Factor de escala maestro: determina el tamaño de todo basado en la dimensión más chica
+        const geometryScale = Math.min(W, H);
+
+        const baseX = W * 0.50;
+        const baseY = H * 0.90; // Suelo más seguro al 90%
         TREE_BASE_X = baseX;
 
-        // Si es vertical, hacemos el tronco más alto para subir el corazón
-        const tH = isPortrait ? (H * 0.20) : (H * 0.16);
-        const trunkH = tH * grow;
-
-        // Ancho proporcional
-        const tW = isPortrait ? (W * 0.08) : (Math.min(W, H) * 0.06);
-        const trunkW = tW * (0.75 + 0.25 * grow);
+        // El tronco se escala proporcional al canvas
+        const trunkH = (geometryScale * 0.25) * grow;
+        const trunkW = (geometryScale * 0.07) * (0.75 + 0.25 * grow);
 
         TREE_TRUNK_TOP_Y = baseY - trunkH;
 
@@ -982,18 +981,18 @@ Te amo. ❤️`;
         const by = baseY - trunkH * 0.78;
 
         ctx.strokeStyle = "rgba(120,72,38,.95)";
-        ctx.lineWidth = Math.max(2 * dpr, 7 * dpr * grow);
+        ctx.lineWidth = Math.max(2 * dpr, (geometryScale * 0.015) * grow);
         ctx.lineCap = "round";
 
-        const arm = W * 0.15 * grow;
+        const arm = (geometryScale * 0.15) * grow;
         ctx.beginPath();
         ctx.moveTo(bx, by);
-        ctx.quadraticCurveTo(bx - arm * 0.55, by - H * 0.06 * grow, bx - arm, by - H * 0.08 * grow);
+        ctx.quadraticCurveTo(bx - arm * 0.55, by - (geometryScale * 0.05) * grow, bx - arm, by - (geometryScale * 0.08) * grow);
         ctx.stroke();
 
         ctx.beginPath();
         ctx.moveTo(bx, by);
-        ctx.quadraticCurveTo(bx + arm * 0.55, by - H * 0.06 * grow, bx + arm, by - H * 0.08 * grow);
+        ctx.quadraticCurveTo(bx + arm * 0.55, by - (geometryScale * 0.05) * grow, bx + arm, by - (geometryScale * 0.08) * grow);
         ctx.stroke();
 
         ctx.restore();
@@ -1001,20 +1000,23 @@ Te amo. ❤️`;
 
       function drawCanvasTitle() {
         ctx.save();
-        const isPortrait = H > W;
-        const fontSizeTitle = isPortrait ? (W * 0.065) : (Math.min(W, H) * 0.040);
-        const fontSizeSub = isPortrait ? (W * 0.045) : (Math.min(W, H) * 0.028);
+        const geometryScale = Math.min(W, H);
 
-        const titleY = isPortrait ? (H * 0.08) : (H * 0.05);
-        const subY = isPortrait ? (H * 0.12) : (H * 0.10);
+        // Texto más grande y bien posicionado arriba
+        const fontSizeTitle = geometryScale * 0.065;
+        const fontSizeSub = geometryScale * 0.045;
 
+        ctx.textAlign = "center";
+
+        // Título principal
         ctx.fillStyle = "rgba(225,29,72,.88)";
         ctx.font = `${Math.floor(fontSizeTitle)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
-        ctx.fillText("San Valentín", W * 0.50, titleY);
+        ctx.fillText("San Valentín", W * 0.50, H * 0.08);
 
+        // Subtítulo
         ctx.fillStyle = "rgba(31,31,31,.55)";
         ctx.font = `${Math.floor(fontSizeSub)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
-        ctx.fillText(`Luci & Seba`, W * 0.50, subY);
+        ctx.fillText(`Luci & Seba`, W * 0.50, H * 0.13);
         ctx.restore();
       }
 
@@ -1023,8 +1025,9 @@ Te amo. ❤️`;
         ctx.strokeStyle = "rgba(0,0,0,.15)";
         ctx.lineWidth = Math.max(1 * dpr, Math.floor(Math.min(W, H) * 0.004));
         ctx.beginPath();
-        ctx.moveTo(W * 0.08, TREE_TRUNK_TOP_Y + (isPortrait ? (H * 0.20) : (H * 0.16)));
-        ctx.lineTo(W * 0.92, TREE_TRUNK_TOP_Y + (isPortrait ? (H * 0.20) : (H * 0.16)));
+        // Suelo al 90%
+        ctx.moveTo(W * 0.05, H * 0.90);
+        ctx.lineTo(W * 0.95, H * 0.90);
         ctx.stroke();
         ctx.restore();
       }
@@ -1041,23 +1044,21 @@ Te amo. ❤️`;
       }
 
       function buildHeartTargets() {
-        const isPortrait = H > W;
         const baseX = TREE_BASE_X || (W * 0.50);
-        const trunkTopNow = TREE_TRUNK_TOP_Y || (H * 0.95);
+        const trunkTopNow = TREE_TRUNK_TOP_Y || (H * 0.65); // Fallback seguro
 
-        // ESCALA ADAPTATIVA
-        // Si es vertical (celular), usamos el ancho como referencia y escalamos MÁS GRANDE
-        const baseScale = isPortrait ? (W * 0.032) : (Math.min(W, H) * 0.016);
-        const scale = baseScale;
+        const geometryScale = Math.min(W, H);
+        // Escala del corazón aumentada y consistente
+        const scale = geometryScale * 0.022;
 
         const cx = baseX;
-        // Ajustar posición vertical dependiendo del modo
-        const cy = trunkTopNow - (isPortrait ? (scale * 12) : (scale * 15));
+        // El centro del corazón se sitúa relativo a la copa del árbol
+        const cy = trunkTopNow - (scale * 13);
 
         HEART_CENTER = { x: cx, y: cy };
 
         const originX = baseX;
-        const originY = trunkTopNow + (H * 0.03);
+        const originY = trunkTopNow + (scale * 2); // Un poco abajo del tope del tronco
 
         const outline = [];
         const N = 360;
